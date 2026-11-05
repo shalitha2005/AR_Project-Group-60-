@@ -1,27 +1,98 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>My First AR App</title>
-    
-    <!-- A-frame 3d engine -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Volcano Eruption AR</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <!-- 2. AR.js: camera move on -->
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
-</head>
 
-<body style="margin: 0; overflow: hidden;">
-    <a-scene embedded
-             vr-mode-ui="enabled: false"
-             arjs="sourceType: webcam; debugUIEnabled: false;">
+    <script>
+      // Color changer (from workshop)
+      AFRAME.registerComponent('color-changer', {
+        init: function () {
+          const colors = ['#EF2D5E', '#FFC65D', '#4CC3D9', '#7BC8A4', '#9B59B6'];
+          let index = 0;
+          this.el.addEventListener('click', () => {
+            index = (index + 1) % colors.length;
+            this.el.setAttribute('color', colors[index]);
+          });
+        }
+      });
 
-        <!-- <a-marker> ඇතුළේ ඇති සියලුම දේ Hiro සලකුණ මත දිස් වේ -->
-        <a-marker preset="hiro">
-            <a-box position="0 0.5 0" material="color: red;"></a-box>
-        </a-marker>
+      // New custom component: Volcano erupts/grows on tap
+      AFRAME.registerComponent('erupt-on-tap', {
+        init: function () {
+          let isErupted = false;
+          this.el.addEventListener('click', () => {
+            isErupted = !isErupted;
+            if (isErupted) {
+              this.el.setAttribute('scale', '1.5 1.5 1.5');
+            } else {
+              this.el.setAttribute('scale', '1 1 1');
+            }
+          });
+        }
+      });
 
-        <!-- camera for web or mobile -->
-        <a-entity camera></a-entity>
+      // Status Banner
+      AFRAME.registerComponent('marker-status', {
+        init: function () {
+          const banner = document.querySelector('#status');
+          this.el.addEventListener('markerFound', () => {
+            banner.textContent = 'Marker FOUND - Tap the volcano!';
+            banner.style.background = '#2E7D32';
+          });
+          this.el.addEventListener('markerLost', () => {
+            banner.textContent = 'Marker LOST - point camera at Hiro marker';
+            banner.style.background = '#C62828';
+          });
+        }
+      });
+    </script>
+
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #status {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+        padding: 10px; text-align: center; color: white;
+        font-family: sans-serif; background: #C62828;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">Looking for marker...</div>
+
+    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
+      
+      <a-assets timeout="20000">
+        <!-- 3D Model (Lantern - not the duck) -->
+        <a-asset-item id="lantern-model" src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Lantern/glTF-Binary/Lantern.glb"></a-asset-item>
+      </a-assets>
+
+      <a-marker preset="hiro" marker-status>
+        
+        <!-- 1. Ground Plane -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="2" height="2" color="#2C3E50"></a-plane>
+        
+        <!-- 2. Volcano (Cone) - Tap to erupt -->
+        <a-cone class="clickable" erupt-on-tap position="0 0.3 0" radius-bottom="0.6" radius-top="0.1" height="0.6" color="#8B4513"></a-cone>
+
+        <!-- 3. Flying Debris (Box) - Rotates -->
+        <a-box position="-0.5 0.6 0" width="0.1" height="0.1" depth="0.1" color="#E74C3C" animation="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-box>
+        
+        <!-- 4. Lava Bomb (Sphere) - Bounces and changes color -->
+        <a-sphere class="clickable" color-changer position="0.5 0.5 0" radius="0.1" color="#FF4500" animation="property: position; from: 0.5 0.3 0; to: 0.5 0.9 0; dir: alternate; dur: 800; loop: true; easing: easeInOutQuad"></a-sphere>
+
+        <!-- 5. 3D Model -->
+        <a-entity gltf-model="#lantern-model" position="-0.6 0.05 0.4" scale="0.05 0.05 0.05"></a-entity>
+
+        <!-- 6. Text Label -->
+        <a-text value="Volcano Eruption!" position="0 1.1 0" align="center" width="4" color="#FFFFFF"></a-text>
+
+      </a-marker>
+
+      <a-entity camera cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
     </a-scene>
-</body>
+  </body>
 </html>
