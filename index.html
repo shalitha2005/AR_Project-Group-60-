@@ -17,8 +17,27 @@
 
         <!-- <a-marker> ඇතුළේ ඇති සියලුම දේ Hiro සලකුණ මත දිස් වේ -->
         <a-marker preset="hiro">
-            <a-box position="0 0.5 0" material="color: red;"></a-box>
-        </a-marker>
+
+    <!-- Ground plate (සලකුණ මත පැතලි ලෙස පිහිටන තහඩුව) -->
+    <a-plane position="0 0 0" rotation="-90 0 0"
+             width="1.6" height="1.6" color="#2C3E50"></a-plane>
+
+    <!-- Tower body (කුළුනේ ප්‍රධාන කොටස) -->
+    <a-box position="0 0.4 0" width="0.6" height="0.8" depth="0.6"
+           color="#4CC3D9"></a-box>
+
+    <!-- Ball resting on top of the tower (කුළුන මත පිහිටි පන්දුව) -->
+    <a-sphere position="0 1.05 0" radius="0.25" color="#EF2D5E"></a-sphere>
+
+    <!-- Small cylinder beside the tower (කුළුන අසල ඇති කුඩා සිලින්ඩරය) -->
+    <a-cylinder position="0.6 0.25 0" radius="0.2" height="0.5"
+                color="#FFC65D"></a-cylinder>
+
+    <!-- A floating text label (පාවෙන අකුරු ලේබලය) -->
+    <a-text value="Hello AR!" position="0 1.6 0" align="center"
+            width="3" color="#FFFFFF"></a-text>
+
+</a-marker>
 
         <!-- camera for web or mobile -->
         <a-entity camera></a-entity>
